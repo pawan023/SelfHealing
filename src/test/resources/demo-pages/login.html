@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQA Demo Login</title>
+    <style>
+        body {
+            align-items: center;
+            background: #f4f0e8;
+            color: #231f20;
+            display: flex;
+            font-family: Georgia, "Times New Roman", serif;
+            justify-content: center;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        main {
+            background: #fffaf1;
+            border: 1px solid #d8c9ad;
+            border-radius: 18px;
+            box-shadow: 0 24px 70px rgba(56, 44, 26, 0.16);
+            padding: 32px;
+            width: min(420px, calc(100vw - 48px));
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-top: 16px;
+        }
+
+        input {
+            border: 1px solid #b9a98d;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font: inherit;
+            margin-top: 6px;
+            padding: 10px 12px;
+            width: 100%;
+        }
+
+        button {
+            background: #1f4d36;
+            border: 0;
+            border-radius: 999px;
+            color: #fffaf1;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            margin-top: 24px;
+            padding: 12px 20px;
+            width: 100%;
+        }
+
+        #login-status {
+            margin: 18px 0 0;
+            min-height: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Demo Login</h1>
+    <form id="login-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username">
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password">
+
+        <button type="submit">Sign in</button>
+        <p id="login-status" aria-live="polite"></p>
+    </form>
+</main>
+
+<script>
+    document.querySelector("#login-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const username = document.querySelector("#username").value.trim() || "guest";
+        document.querySelector("#login-status").textContent = `Welcome, ${username}`;
+    });
+</script>
+</body>
+</html>
