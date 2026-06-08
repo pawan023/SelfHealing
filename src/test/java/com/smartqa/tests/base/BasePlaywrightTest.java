@@ -5,6 +5,9 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.Locator;
+import com.smartqa.selfhealing.engine.SelfHealingEngine;
+import com.smartqa.selfhealing.strategy.TextHealingStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -15,6 +18,7 @@ public abstract class BasePlaywrightTest {
     protected Browser browser;
     protected BrowserContext context;
     protected Page page;
+    protected SelfHealingEngine selfHealingEngine;
 
     @BeforeEach
     protected void startBrowser() {
@@ -25,6 +29,8 @@ public abstract class BasePlaywrightTest {
         browser = playwright.chromium().launch(launchOptions);
         context = browser.newContext();
         page = context.newPage();
+        selfHealingEngine = new SelfHealingEngine(page);
+        selfHealingEngine.registerStrategy(new TextHealingStrategy());
     }
 
     @AfterEach
@@ -43,6 +49,16 @@ public abstract class BasePlaywrightTest {
             throw new IllegalArgumentException("Test resource not found: " + resourcePath);
         }
         return resource;
+    }
+
+    /**
+     * Uses the SelfHealingEngine to find an element, applying healing strategies if necessary.
+     * @param selector The original selector string used to create the primaryLocator.
+     * @param primaryLocator The initial locator to try.
+     * @return A working Locator instance, potentially healed.
+     */
+    protected Locator findElement(String selector, Locator primaryLocator) {
+        return selfHealingEngine.findElement(selector, primaryLocator);
     }
 
     private void closePage() {

@@ -1,4 +1,4 @@
- package com.smartqa.tests.examples;
+package com.smartqa.tests.examples;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -14,10 +14,11 @@ final class PlaywrightSmokeTest extends BasePlaywrightTest {
         page.navigate(testResource("demo-pages/login.html").toExternalForm());
 
         assertThat(page).hasTitle("SmartQA Demo Login");
-        page.getByLabel("Username").fill("pawan");
-        page.getByLabel("Password").fill("secret");
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign in")).click();
 
-        assertThat(page.locator("#login-status")).containsText("Welcome, pawan");
+        findElement("Username", page.getByLabel("Username")).fill("pawan");
+        findElement("Password", page.getByLabel("Password")).fill("secret");
+        findElement("Sign in", page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign in"))).click();
+
+        assertThat(findElement("#login-status", page.locator("#login-status"))).containsText("Welcome, pawan");
     }
 }
