@@ -7,6 +7,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.Locator;
 import com.smartqa.selfhealing.engine.SelfHealingEngine;
+import com.smartqa.selfhealing.strategy.AttributeHealingStrategy; // Import new strategy
 import com.smartqa.selfhealing.strategy.TextHealingStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,9 @@ public abstract class BasePlaywrightTest {
         context = browser.newContext();
         page = context.newPage();
         selfHealingEngine = new SelfHealingEngine(page);
+
+        // Register strategies. Attribute strategy is tried first as it's more specific.
+        selfHealingEngine.registerStrategy(new AttributeHealingStrategy());
         selfHealingEngine.registerStrategy(new TextHealingStrategy());
     }
 

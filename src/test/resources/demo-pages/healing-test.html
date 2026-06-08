@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Healing Test Page</title>
+</head>
+<body>
+    <h1>Attribute Healing Test</h1>
+
+    <!--
+        This input is missing an 'id' attribute.
+        A test using '#login-input' will fail,
+        but it can be healed by finding the 'name' attribute.
+    -->
+    <input name="login-input" type="text" placeholder="Enter username">
+
+    <button data-testid="submit-button">Submit</button>
+
+</body>
+</html>
