@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Healing Test Page</title>
+</head>
+<body>
+    <h1>AI Healing Test</h1>
+
+    <div>
+        <!--
+            This button is intentionally hard to locate with simple strategies.
+            - It has no unique ID, name, or data-testid.
+            - The text "Confirm" might appear elsewhere on a real page.
+            An AI should be able to identify it as the primary confirmation button
+            based on its context within the form-like structure.
+        -->
+        <p>Please confirm your action to proceed.</p>
+        <div class="button-container" style="padding: 10px; border: 1px solid #ccc;">
+            <button class="action-btn primary">Confirm</button>
+        </div>
+    </div>
+
+</body>
+</html>

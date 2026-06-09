@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.smartqa.tests.base.BasePlaywrightTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -24,22 +25,38 @@ final class PlaywrightSmokeTest extends BasePlaywrightTest {
 
     @Test
     void attributeHealingStrategyWorksWhenIdIsBroken() {
-        // 1. Navigate to a page designed for this test.
         page.navigate(testResource("demo-pages/healing-test.html").toExternalForm());
 
-        // 2. Define a broken selector. The 'login-input' element in the HTML
-        //    does NOT have an ID, so this will fail.
         String brokenSelector = "#login-input";
-        String healingValue = "login-input"; // The value our strategy should extract.
+        String healingValue = "login-input";
 
-        // 3. Call findElement. The SelfHealingEngine should be triggered.
-        //    - The primary locator (page.locator("#login-input")) will fail.
-        //    - The AttributeHealingStrategy will then try page.locator("[name='login-input']").
-        //    - This will succeed, and the healed locator will be returned.
         var healedLocator = findElement(healingValue, page.locator(brokenSelector));
 
-        // 4. Perform an action and assert to prove it worked.
         healedLocator.fill("This proves healing worked!");
         assertThat(healedLocator).hasValue("This proves healing worked!");
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "smartqa.runAiTests", matches = "true")
+    void aiHealingStrategyWorksWithOllama() {
+        // 1. Navigate to a page designed for this test.
+        page.navigate(testResource("demo-pages/ai-healing-test.html").toExternalForm());
+
+        // 2. Define a truly broken selector that will NOT find anything.
+        String trulyBrokenSelector = "#nonexistent-button-id";
+
+        // 3. Provide a simple, direct semantic description of the element to the AI.
+        //    Focus on the most unambiguous identifier: the button's text.
+        String semanticDescription = "Confirm button";
+
+        // 4. Call findElement. The SelfHealingEngine will trigger the AI strategy.
+        //    - Attribute and Text strategies will fail.
+        //    - AIHealingStrategy will call OllamaProvider with the semanticDescription.
+        //    - Ollama should analyze the DOM and suggest a better selector like '.button-container .action-btn.primary' or 'text=Confirm'.
+        var healedLocator = findElement(semanticDescription, page.locator(trulyBrokenSelector));
+
+        // 5. Assert that the correct element was found and is visible.
+        assertThat(healedLocator).isVisible();
+        assertThat(healedLocator).containsText("Confirm");
     }
 }
