@@ -1,13 +1,11 @@
 package com.smartqa.tests.base;
 
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.*;
+import com.smartqa.selfhealing.ai.AIHealingStrategy;
+import com.smartqa.selfhealing.ai.AIProvider;
+import com.smartqa.selfhealing.ai.providers.OllamaProvider;
+import com.smartqa.selfhealing.config.HealingConfig;
 import com.smartqa.selfhealing.engine.SelfHealingEngine;
-import com.smartqa.selfhealing.llm.LLMHealingStrategy; // Import LLM strategy
 import com.smartqa.selfhealing.strategy.AttributeHealingStrategy;
 import com.smartqa.selfhealing.strategy.TextHealingStrategy;
 import org.junit.jupiter.api.AfterEach;
@@ -33,10 +31,39 @@ public abstract class BasePlaywrightTest {
         page = context.newPage();
         selfHealingEngine = new SelfHealingEngine(page);
 
-        // Register strategies in order of preference.
+        // Setup healing strategies
+        setupHealingStrategies();
+    }
+
+    private void setupHealingStrategies() {
+        HealingConfig config = new HealingConfig();
+
+        // Register standard strategies
         selfHealingEngine.registerStrategy(new AttributeHealingStrategy());
         selfHealingEngine.registerStrategy(new TextHealingStrategy());
-        selfHealingEngine.registerStrategy(new LLMHealingStrategy()); // LLM is the last resort.
+
+        // Configure and register the AI strategy
+        AIProvider aiProvider = createAiProvider(config);
+        if (aiProvider != null) {
+            selfHealingEngine.registerStrategy(new AIHealingStrategy(aiProvider));
+        }
+    }
+
+    private AIProvider createAiProvider(HealingConfig config) {
+        String providerName = config.getAiProvider();
+        System.out.println("Configured AI Provider: " + providerName);
+
+        switch (providerName) {
+            case "ollama":
+                return new OllamaProvider();
+            case "openai":
+                // return new OpenAIProvider(); // To be implemented
+            case "gemini":
+                // return new GeminiProvider(); // To be implemented
+            default:
+                System.err.println("Warning: Unknown AI provider '" + providerName + "'. AI healing will be disabled.");
+                return null;
+        }
     }
 
     @AfterEach
@@ -48,46 +75,30 @@ public abstract class BasePlaywrightTest {
     }
 
     protected URL testResource(String resourcePath) {
-        URL resource = Thread.currentThread()
-                .getContextClassLoader()
-                .getResource(resourcePath);
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(resourcePath);
         if (resource == null) {
             throw new IllegalArgumentException("Test resource not found: " + resourcePath);
         }
         return resource;
     }
 
-    /**
-     * Uses the SelfHealingEngine to find an element, applying healing strategies if necessary.
-     * @param selector The original selector string used to create the primaryLocator.
-     * @param primaryLocator The initial locator to try.
-     * @return A working Locator instance, potentially healed.
-     */
     protected Locator findElement(String selector, Locator primaryLocator) {
         return selfHealingEngine.findElement(selector, primaryLocator);
     }
 
     private void closePage() {
-        if (page != null) {
-            page.close();
-        }
+        if (page != null) page.close();
     }
 
     private void closeContext() {
-        if (context != null) {
-            context.close();
-        }
+        if (context != null) context.close();
     }
 
     private void closeBrowser() {
-        if (browser != null) {
-            browser.close();
-        }
+        if (browser != null) browser.close();
     }
 
     private void closePlaywright() {
-        if (playwright != null) {
-            playwright.close();
-        }
+        if (playwright != null) playwright.close();
     }
 }
